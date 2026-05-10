@@ -1,6 +1,7 @@
 import os
 import secrets
 import string
+import traceback
 from datetime import datetime, timedelta
 from functools import wraps
 
@@ -317,7 +318,8 @@ def login():
         return jsonify({"message": "Invalid credentials"}), 401
 
     except Exception as e:
-        print(f"[LOGIN EXCEPTION] {e}")
+        print(f"[LOGIN EXCEPTION] {type(e).__name__}: {e}")
+        print(traceback.format_exc())
         return jsonify({"message": "Error during login"}), 500
     finally:
         if db:

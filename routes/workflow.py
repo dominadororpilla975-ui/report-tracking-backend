@@ -1,6 +1,6 @@
 import os
 from flask import Blueprint, request, jsonify, url_for
-from db import get_db
+from db import get_db, get_dict_cursor
 from datetime import datetime
 
 workflow = Blueprint("workflow", __name__)
@@ -13,7 +13,7 @@ def get_report_workflow(report_id):
     db = None
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
 
         # Get report details
         cursor.execute("""
@@ -122,7 +122,7 @@ def approve_workflow_step(report_id):
         approver_notes = data.get('notes', 'Approved')
 
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
 
         # Determine approver department
         cursor.execute("""
@@ -163,7 +163,7 @@ def approve_workflow_step(report_id):
         earliest_pending_step = earliest_pending['earliest_pending'] if earliest_pending else None
 
         cursor.close()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
 
         # Approve current department step
         cursor.execute("""
@@ -288,7 +288,7 @@ def reject_workflow_step(report_id):
             return jsonify({"message": "Rejection reason required"}), 400
 
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
 
         # Determine approver department
         cursor.execute("""
@@ -314,7 +314,7 @@ def reject_workflow_step(report_id):
             return jsonify({"message": "No pending workflow step assigned to your department for this report."}), 404
 
         cursor.close()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
 
         # Update current step
         cursor.execute("""
@@ -357,7 +357,7 @@ def get_pending_for_department(department_id):
     db = None
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
 
         cursor.execute("""
             SELECT DISTINCT r.id, r.title, r.description, r.status, 
@@ -389,7 +389,7 @@ def get_processing_for_department(department_id):
     db = None
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
 
         cursor.execute("""
             SELECT DISTINCT r.id, r.title, r.description, r.status,
@@ -421,7 +421,7 @@ def get_completed_for_department(department_id):
     db = None
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
 
         cursor.execute("""
             SELECT DISTINCT r.id, r.title, r.status,
@@ -491,7 +491,7 @@ def reassign_report_department(report_id):
         return_to_admin = data.get('return_to_admin', False)
 
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         
         # Get current report
         cursor.execute("SELECT * FROM reports WHERE id = %s", (report_id,))
@@ -588,7 +588,7 @@ def get_workflow_history(report_id):
     db = None
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
 
         # Get all logs for this report (for timeline)
         cursor.execute("""
@@ -690,7 +690,7 @@ def get_department_workflow_stats(department_id):
     db = None
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         
         # Get pending count
         cursor.execute("""

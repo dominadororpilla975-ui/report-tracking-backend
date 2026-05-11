@@ -9,7 +9,7 @@ import bcrypt
 from flask import Blueprint, request, jsonify, g
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 
-from db import get_db
+from db import get_db, get_dict_cursor
 
 # Google authentication (lazy import to avoid warnings)
 _google_requests = None
@@ -135,7 +135,7 @@ def get_department_name(db, department_id):
         return None
 
     try:
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         cursor.execute("SELECT name FROM departments WHERE id=%s", (department_id,))
         department = cursor.fetchone()
         cursor.close()
@@ -226,7 +226,7 @@ def google_login():
             }), 400
 
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
 
         cursor.execute("SELECT * FROM users WHERE google_sub=%s", (google_sub,))
         user = cursor.fetchone()
@@ -279,7 +279,7 @@ def login():
             return jsonify({"message": "Email and password are required"}), 400
 
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
 
         cursor.execute("SELECT * FROM users WHERE email=%s", (data["email"],))
         user = cursor.fetchone()
@@ -380,7 +380,7 @@ def forgot_password():
             return jsonify({"message": "Email is required"}), 400
 
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         cursor.execute("SELECT id, name FROM users WHERE email = %s", (email,))
         user = cursor.fetchone()
 
@@ -490,7 +490,7 @@ def reset_password():
         user_id = payload.get("user_id")
 
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
 
         # Verify token is still valid in database
         cursor.execute(

@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request, send_from_directory, url_for
 from werkzeug.exceptions import NotFound
 from werkzeug.utils import secure_filename
-from db import get_db
+from db import get_db, get_dict_cursor
 import os
 
 client = Blueprint("client", __name__)
@@ -31,7 +31,7 @@ def my_reports(user):
 
         if not db:
             db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         
         # Get reports with department info for client tracking
         # Build query with filters
@@ -113,7 +113,7 @@ def get_report_detail(report_id):
     db = None
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         
         cursor.execute("""
             SELECT r.*, d.name as department_name 
@@ -224,7 +224,7 @@ def submit_report():
 
         if client_id and not report_client_email:
             db_lookup = get_db()
-            cursor_lookup = db_lookup.cursor(dictionary=True)
+            cursor_lookup = get_dict_cursor(db_lookup)
             cursor_lookup.execute(
                 "SELECT email, name FROM users WHERE id = %s",
                 (client_id,),
@@ -373,7 +373,7 @@ def request_reassign(report_id):
             return jsonify({"message": "Reason for reassignment is required"}), 400
         
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         
         # Get current report
         cursor.execute("SELECT * FROM reports WHERE id = %s", (report_id,))
@@ -413,7 +413,7 @@ def get_client_stats(user_id):
     db = None
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         
         # Status distribution for this client
         cursor.execute("""
@@ -453,7 +453,7 @@ def notify_client(report_id):
     db = None
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
 
         cursor.execute("""
             SELECT r.*, u.email as client_email, u.name as client_name, d.name as department_name

@@ -1,7 +1,7 @@
 import os
 from flask import Blueprint, request, jsonify, url_for, send_from_directory
 from werkzeug.utils import secure_filename
-from db import get_db
+from db import get_db, get_dict_cursor
 
 department = Blueprint("department", __name__)
 SIGNATURE_FOLDER = os.path.join(os.path.dirname(os.path.dirname(__file__)), "uploads", "department_signatures")
@@ -19,7 +19,7 @@ def assigned_reports(department_id):
         status = request.args.get('status')  # Filter by status
         
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         
         # Build query with filters
         where_conditions = ["r.department_id=%s"]
@@ -69,7 +69,7 @@ def get_report_detail(report_id):
     db = None
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         
         cursor.execute("""
             SELECT r.*, c.name as client_name, d.name as department_name
@@ -116,7 +116,7 @@ def get_departments():
     db = None
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         cursor.execute("SELECT id, name FROM departments ORDER BY name ASC")
         departments = cursor.fetchall()
         cursor.close()
@@ -143,7 +143,7 @@ def get_department_signature(department_id):
     db = None
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         cursor.execute("SELECT signature_path FROM departments WHERE id = %s", (department_id,))
         row = cursor.fetchone()
         cursor.close()
@@ -188,7 +188,7 @@ def upload_department_signature(department_id):
         file.save(filepath)
 
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         cursor.execute("SELECT id FROM departments WHERE id = %s", (department_id,))
         if not cursor.fetchone():
             cursor.close()
@@ -239,7 +239,7 @@ def update_workflow_route_status(route_id):
             return jsonify({"message": f"Invalid status. Use one of: {', '.join(valid_statuses)}"}), 400
         
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         
         # Get current workflow route
         cursor.execute("""
@@ -262,7 +262,7 @@ def update_workflow_route_status(route_id):
         
         # Update the workflow route status
         cursor.close()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         
         if new_status == 'Approved':
             cursor.execute("""
@@ -456,7 +456,7 @@ def reassign_report(report_id):
             return jsonify({"message": "new_department_id is required"}), 400
         
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         
         # Get current department
         cursor.execute("SELECT department_id FROM reports WHERE id = %s", (report_id,))

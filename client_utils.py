@@ -2,13 +2,13 @@ import os
 import bcrypt
 import secrets
 import string
-from db import get_db
+from db import get_db, get_dict_cursor
 from routes.admin import send_welcome_email
 
 def create_client_account(email, name=None):
     """Create client account or return existing client_id. Sends welcome email. Returns (client_id, temp_password if new)"""
     db = get_db()
-    cursor = db.cursor(dictionary=True)
+    cursor = get_dict_cursor(db)
     
     try:
         # Check if email already exists
@@ -57,7 +57,7 @@ def create_client_account(email, name=None):
 
 def resend_welcome_email(email, name=None):
     db = get_db()
-    cursor = db.cursor(dictionary=True)
+    cursor = get_dict_cursor(db)
 
     try:
         cursor.execute(

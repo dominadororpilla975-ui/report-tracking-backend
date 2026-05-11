@@ -2,7 +2,7 @@ import os
 import bcrypt
 from flask import Blueprint, request, jsonify, url_for, g
 from werkzeug.utils import secure_filename
-from db import get_db
+from db import get_db, get_dict_cursor
 from config import build_frontend_url
 from routes.auth import verify_auth_token
 from email_service import send_email, send_assignment_email
@@ -86,7 +86,7 @@ def all_reports():
         department_id = request.args.get('department_id')
         
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         
         query = "SELECT r.*, d.name as department_name, c.name as client_name FROM reports r LEFT JOIN departments d ON r.department_id = d.id LEFT JOIN users c ON r.client_id = c.id WHERE 1=1"
         params = []
@@ -117,7 +117,7 @@ def get_report_detail(report_id):
     db = None
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         
         # Get report details
         cursor.execute("""
@@ -181,7 +181,7 @@ def assign_report(report_id):
         new_dept = int(new_dept)
         
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         
         # Get current report info and client contact data
         cursor.execute(
@@ -251,7 +251,7 @@ def assign_report(report_id):
         # Send notification email to the client when the report is assigned
         try:
             if client_email:
-                dept_cursor = db.cursor(dictionary=True)
+                dept_cursor = get_dict_cursor(db)
                 dept_cursor.execute("SELECT name FROM departments WHERE id = %s", (new_dept,))
                 dept_record = dept_cursor.fetchone()
                 dept_cursor.close()
@@ -288,7 +288,7 @@ def approve_report(report_id):
         data = request.json
         
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         
         # Get current report info
         cursor.execute("SELECT * FROM reports WHERE id = %s", (report_id,))
@@ -338,7 +338,7 @@ def admin_review_report(report_id):
         data = request.json
         
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         
         # Get current report info
         cursor.execute("SELECT * FROM reports WHERE id = %s", (report_id,))
@@ -425,7 +425,7 @@ def add_admin_comment(report_id):
             return jsonify({"message": "Comment is required"}), 400
 
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         cursor.execute("SELECT id FROM reports WHERE id = %s", (report_id,))
         report = cursor.fetchone()
         if not report:
@@ -457,7 +457,7 @@ def get_departments():
     db = None
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         cursor.execute("""
             SELECT
                 d.id,
@@ -492,7 +492,7 @@ def create_department():
             return jsonify({"message": "Department name is required"}), 400
 
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         cursor.execute("SELECT id FROM departments WHERE LOWER(name)=LOWER(%s)", (name,))
         if cursor.fetchone():
             cursor.close()
@@ -566,7 +566,7 @@ def get_department_stats(dept_id):
     db = None
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         
         cursor.execute("SELECT * FROM departments WHERE id = %s", (dept_id,))
         dept = cursor.fetchone()
@@ -615,7 +615,7 @@ def create_user():
             return jsonify({"message": "Role must be staff, department, or client"}), 400
         
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         
         # Check if email already exists
         cursor.execute("SELECT id FROM users WHERE email=%s", (data["email"],))
@@ -681,7 +681,7 @@ def get_users():
         role = request.args.get('role')
         
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         
         if role:
             cursor.execute("""
@@ -715,7 +715,7 @@ def delete_user(user_id):
     db = None
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         cursor.execute("SELECT id FROM users WHERE id = %s", (user_id,))
         user = cursor.fetchone()
         if not user:
@@ -818,7 +818,7 @@ def submit_paper_assignment():
 
         if client_id and not report_client_email and client_id != admin_id:
             db_lookup = get_db()
-            cursor_lookup = db_lookup.cursor(dictionary=True)
+            cursor_lookup = get_dict_cursor(db_lookup)
             cursor_lookup.execute(
                 "SELECT email, name FROM users WHERE id = %s",
                 (client_id,),
@@ -941,7 +941,7 @@ def resend_client_welcome():
                 return jsonify({"message": "Invalid client_id"}), 400
 
             db = get_db()
-            cursor = db.cursor(dictionary=True)
+            cursor = get_dict_cursor(db)
             cursor.execute(
                 "SELECT email, name FROM users WHERE id = %s AND role = 'client'",
                 (client_id,),
@@ -993,7 +993,7 @@ def reassign_report(report_id):
             new_dept = data.get('department_id')
         
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         
         # Get current report info
         cursor.execute("SELECT * FROM reports WHERE id = %s", (report_id,))
@@ -1088,7 +1088,7 @@ def get_dashboard_stats():
     db = None
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         
         # Status distribution
         cursor.execute("""

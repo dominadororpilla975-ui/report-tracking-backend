@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from db import get_db
+from db import get_db, get_dict_cursor
 
 staff = Blueprint("staff", __name__)
 
@@ -11,7 +11,7 @@ def department_reports(department_id):
         status = request.args.get('status')  # Optional status filter
         
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         
         if status:
             cursor.execute("""
@@ -48,7 +48,7 @@ def get_report_detail(report_id):
     db = None
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         
         # Get report
         cursor.execute("""
@@ -164,7 +164,7 @@ def get_department_stats(department_id):
     db = None
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = get_dict_cursor(db)
         
         # Get total reports
         cursor.execute("""

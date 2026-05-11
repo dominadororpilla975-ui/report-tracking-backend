@@ -1083,8 +1083,31 @@ def delete_report(report_id):
 # =============== DASHBOARD STATISTICS ===============
 
 # Get dashboard statistics for charts
-@admin.route('/admin/stats')
-def get_dashboard_stats():
+@admin.route('/admin/test-db')
+def test_db():
+    """Test database connection and basic queries"""
+    db = None
+    try:
+        db = get_db()
+        cursor = get_dict_cursor(db)
+        
+        # Test basic query
+        cursor.execute("SELECT COUNT(*) as count FROM reports")
+        result = cursor.fetchone()
+        
+        cursor.close()
+        return jsonify({
+            "status": "ok",
+            "reports_count": result['count'] if result else 0
+        }), 200
+    except Exception as e:
+        import traceback
+        print(f"[TEST DB ERROR] {e}")
+        print(f"[TEST DB TRACEBACK] {traceback.format_exc()}")
+        return jsonify({"message": f"Database error: {str(e)}"}), 500
+    finally:
+        if db:
+            db.close()
     db = None
     try:
         db = get_db()

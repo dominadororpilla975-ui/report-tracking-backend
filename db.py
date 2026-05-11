@@ -3,7 +3,8 @@ import sys
 import psycopg2
 from psycopg2 import Error
 from psycopg2.extras import RealDictCursor
-from urllib.parse import urlparse, unquote
+from urllib.parse import parse_qsl, unquote, urlparse
+
 
 def _parse_database_url(database_url):
     parsed = urlparse(database_url)
@@ -17,8 +18,9 @@ def _parse_database_url(database_url):
     user = unquote(parsed.username) if parsed.username else os.environ.get("DB_USER", "postgres")
     password = unquote(parsed.password) if parsed.password else os.environ.get("DB_PASSWORD", "")
     database = parsed.path.lstrip("/") or os.environ.get("DB_DATABASE", "report_tracking")
+    options = dict(parse_qsl(parsed.query)) if parsed.query else {}
 
-    return host, port, user, password, database
+    return host, port, user, password, database, options
 
 
 def get_db():
@@ -29,7 +31,7 @@ def get_db():
     try:
         database_url = os.environ.get("DATABASE_URL") or os.environ.get("POSTGRES_URL")
         if database_url:
-            db_host, db_port, db_user, db_password, db_name = _parse_database_url(
+            db_host, db_port, db_user, db_password, db_name, db_options = _parse_database_url(
                 database_url
             )
         else:
@@ -38,6 +40,7 @@ def get_db():
             db_user = os.environ.get("DB_USER", "postgres")
             db_password = os.environ.get("DB_PASSWORD", "")
             db_name = os.environ.get("DB_DATABASE", "report_tracking")
+            db_options = {}
 
         print(
             f"[DB] Connecting to {db_user}@{db_host}:{db_port}/{db_name}",
@@ -49,7 +52,8 @@ def get_db():
             port=db_port,
             user=db_user,
             password=db_password,
-            database=db_name
+            database=db_name,
+            **db_options,
         )
         return connection
     except Error as e:

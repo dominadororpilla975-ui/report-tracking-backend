@@ -414,6 +414,7 @@ def forgot_password():
             """,
             (hashed, temp_password, reset_token, expires, user["id"]),
         )
+        db.commit()
 
         # Send reset email with both the temporary password and reset link.
         try:
@@ -437,7 +438,7 @@ def forgot_password():
                 f"You can also reset your password directly here: {reset_url}\n"
                 "This link expires in 1 hour.\n"
             )
-            
+
             send_generic_email(
                 to_email=email,
                 subject="Password Reset Request",
@@ -445,14 +446,12 @@ def forgot_password():
                 text_content=text_content,
                 recipient_name=user["name"],
             )
-            db.commit()
         except Exception as mail_err:
-            db.rollback()
             print(
                 f"[FORGOT PASSWORD EMAIL] Failed to send reset email to "
                 f"{email}: {mail_err}"
             )
-            return jsonify({"message": "Unable to send reset instructions"}), 500
+            traceback.print_exc()
 
         cursor.close()
         return jsonify({"message": "If email exists, reset instructions will be sent"}), 200

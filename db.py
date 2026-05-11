@@ -64,6 +64,11 @@ def get_db():
         raise
 
 
+def get_db_connection():
+    """Alias for get_db to provide a named connection method for setup routes."""
+    return get_db()
+
+
 def get_dict_cursor(db_connection):
     """Get a cursor that returns results as dictionaries (compatible with existing code)"""
     return db_connection.cursor(cursor_factory=RealDictCursor)

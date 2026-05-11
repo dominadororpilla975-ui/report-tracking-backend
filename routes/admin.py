@@ -1090,11 +1090,11 @@ def test_db():
     try:
         db = get_db()
         cursor = get_dict_cursor(db)
-        
+
         # Test basic query
         cursor.execute("SELECT COUNT(*) as count FROM reports")
         result = cursor.fetchone()
-        
+
         cursor.close()
         return jsonify({
             "status": "ok",
@@ -1102,25 +1102,29 @@ def test_db():
         }), 200
     except Exception as e:
         import traceback
-        print(f"[TEST DB ERROR] {e}")
+        print(f"[TEST DB ERROR] {type(e).__name__}: {e}")
         print(f"[TEST DB TRACEBACK] {traceback.format_exc()}")
         return jsonify({"message": f"Database error: {str(e)}"}), 500
     finally:
         if db:
             db.close()
+
+
+@admin.route('/admin/stats')
+def get_dashboard_stats():
     db = None
     try:
         db = get_db()
         cursor = get_dict_cursor(db)
-        
+
         # Status distribution
         cursor.execute("""
-            SELECT status, COUNT(*) as count 
-            FROM reports 
+            SELECT status, COUNT(*) as count
+            FROM reports
             GROUP BY status
         """)
         status_counts = cursor.fetchall()
-        
+
         # Department workload
         cursor.execute("""
             SELECT d.name as department, COUNT(r.id) as report_count
@@ -1130,7 +1134,7 @@ def test_db():
             ORDER BY report_count DESC
         """)
         dept_workload = cursor.fetchall()
-        
+
         # Monthly submission trend
         cursor.execute("""
             SELECT TO_CHAR(created_at, 'YYYY-MM') as month, COUNT(*) as count
@@ -1140,26 +1144,26 @@ def test_db():
             ORDER BY month
         """)
         monthly_trend = cursor.fetchall()
-        
-        # Average resolution time (simplified calculation)
+
+        # Average resolution time
         cursor.execute("""
             SELECT AVG(EXTRACT(EPOCH FROM (COALESCE(updated_at, NOW()) - created_at))) as avg_seconds
             FROM reports
             WHERE status IN ('Approved', 'Completed') AND created_at IS NOT NULL
         """)
         avg_resolution = cursor.fetchone()
-        
-        # Budget overview (add NULL handling)
+
+        # Budget overview
         cursor.execute("""
-            SELECT 
+            SELECT
                 COALESCE(SUM(budget), 0) as total_budget,
                 COALESCE(SUM(CASE WHEN budget_approved THEN budget ELSE 0 END), 0) as approved_budget,
                 COUNT(CASE WHEN budget > 0 THEN 1 END) as reports_with_budget
             FROM reports
         """)
         budget_stats = cursor.fetchall()
-        
-        # Top departments by resolution speed (simplified)
+
+        # Top performers by resolution speed
         cursor.execute("""
             SELECT d.name, AVG(EXTRACT(EPOCH FROM (COALESCE(r.updated_at, NOW()) - r.created_at))) as avg_seconds
             FROM reports r
@@ -1171,9 +1175,8 @@ def test_db():
         """)
         top_performers = cursor.fetchall()
 
-        
         cursor.close()
-        
+
         return jsonify({
             "status_counts": status_counts or [],
             "department_workload": dept_workload or [],
@@ -1187,13 +1190,13 @@ def test_db():
             "top_performers": [
                 {
                     "name": perf["name"],
-                    "avg_days": perf["avg_seconds"] / 86400.0 if perf.get("avg_seconds") else 0
+                    "avg_days": perf.get("avg_seconds", 0) / 86400.0 if perf.get("avg_seconds") is not None else 0
                 } for perf in top_performers or []
             ]
         }), 200
     except Exception as e:
         import traceback
-        print(f"[STATS ERROR] {e}")
+        print(f"[STATS ERROR] {type(e).__name__}: {e}")
         print(f"[STATS TRACEBACK] {traceback.format_exc()}")
         return jsonify({"message": f"Error fetching stats: {str(e)}"}), 500
     finally:

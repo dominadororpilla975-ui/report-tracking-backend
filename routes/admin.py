@@ -1118,9 +1118,9 @@ def get_dashboard_stats():
         """)
         monthly_trend = cursor.fetchall()
         
-        # Average resolution time (use COALESCE for NULL updated_at)
+        # Average resolution time (simplified calculation)
         cursor.execute("""
-            SELECT AVG(EXTRACT(EPOCH FROM (COALESCE(updated_at, created_at) - created_at))) as avg_seconds
+            SELECT AVG(EXTRACT(EPOCH FROM (COALESCE(updated_at, NOW()) - created_at))) as avg_seconds
             FROM reports
             WHERE status IN ('Approved', 'Completed') AND created_at IS NOT NULL
         """)
@@ -1130,20 +1130,19 @@ def get_dashboard_stats():
         cursor.execute("""
             SELECT 
                 COALESCE(SUM(budget), 0) as total_budget,
-                COALESCE(SUM(CASE WHEN budget_approved = 1 THEN budget ELSE 0 END), 0) as approved_budget,
+                COALESCE(SUM(CASE WHEN budget_approved THEN budget ELSE 0 END), 0) as approved_budget,
                 COUNT(CASE WHEN budget > 0 THEN 1 END) as reports_with_budget
             FROM reports
         """)
         budget_stats = cursor.fetchall()
         
-        # Top departments by resolution speed (NULL safe)
+        # Top departments by resolution speed (simplified)
         cursor.execute("""
-            SELECT d.name, AVG(EXTRACT(EPOCH FROM (COALESCE(r.updated_at, r.created_at) - r.created_at))) as avg_seconds
+            SELECT d.name, AVG(EXTRACT(EPOCH FROM (COALESCE(r.updated_at, NOW()) - r.created_at))) as avg_seconds
             FROM reports r
             JOIN departments d ON r.department_id = d.id
             WHERE r.status IN ('Approved', 'Completed') AND r.created_at IS NOT NULL
             GROUP BY d.id, d.name
-            HAVING AVG(EXTRACT(EPOCH FROM (COALESCE(r.updated_at, r.created_at) - r.created_at))) IS NOT NULL
             ORDER BY avg_seconds ASC
             LIMIT 5
         """)
@@ -1153,16 +1152,20 @@ def get_dashboard_stats():
         cursor.close()
         
         return jsonify({
-            "status_counts": status_counts,
-            "department_workload": dept_workload,
-            "monthly_trend": monthly_trend,
-            "avg_resolution_days": (avg_resolution['avg_seconds'] / 86400.0) if avg_resolution and avg_resolution['avg_seconds'] is not None else 0,
-            "budget_stats": budget_stats[0] if budget_stats else {},
+            "status_counts": status_counts or [],
+            "department_workload": dept_workload or [],
+            "monthly_trend": monthly_trend or [],
+            "avg_resolution_days": (avg_resolution['avg_seconds'] / 86400.0) if avg_resolution and avg_resolution.get('avg_seconds') is not None else 0,
+            "budget_stats": budget_stats[0] if budget_stats and len(budget_stats) > 0 else {
+                "total_budget": 0,
+                "approved_budget": 0,
+                "reports_with_budget": 0
+            },
             "top_performers": [
                 {
                     "name": perf["name"],
-                    "avg_days": perf["avg_seconds"] / 86400.0
-                } for perf in top_performers
+                    "avg_days": perf["avg_seconds"] / 86400.0 if perf.get("avg_seconds") else 0
+                } for perf in top_performers or []
             ]
         }), 200
     except Exception as e:

@@ -1169,7 +1169,9 @@ def get_dashboard_stats():
             ]
         }), 200
     except Exception as e:
+        import traceback
         print(f"[STATS ERROR] {e}")
+        print(f"[STATS TRACEBACK] {traceback.format_exc()}")
         return jsonify({"message": f"Error fetching stats: {str(e)}"}), 500
     finally:
         if db:

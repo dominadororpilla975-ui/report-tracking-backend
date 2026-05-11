@@ -1,0 +1,71 @@
+.navbar {
+  background: #1a1a2e;
+  color: white;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.glass-container {
+  background: #1a1a2e;
+  border-radius: 15px;
+  padding: 2rem;
+  max-width: 400px;
+  margin: 50px auto;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  color: #fff;
+  text-align: center;
+}
+input {
+  display: block;
+  width: 90%;
+  margin: 10px auto;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+}
+button {
+  padding: 10px 20px;
+  border-radius: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+.sidebar {
+  width: 200px;
+  background: #1a1a2e;
+  color: white;
+  padding: 2rem;
+  min-height: 100vh;
+}
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+.sidebar ul li {
+  margin-bottom: 1rem;
+}
+.sidebar ul li a {
+  color: white;
+  text-decoration: none;
+}
+.status-Submitted span {
+  color: orange;
+  font-weight: bold;
+}
+.status-InProgress span {
+  color: blue;
+  font-weight: bold;
+}
+.status-Completed span {
+  color: green;
+  font-weight: bold;
+}
+.report-card {
+  background: #1a1a2e;
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 10px;
+  color: white;
+}

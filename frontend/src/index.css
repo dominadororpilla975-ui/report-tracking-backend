@@ -1,0 +1,426 @@
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-attachment: fixed;
+  background-size: cover;
+}
+
+code {
+  font-family:
+    source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+.login-form-card {
+  background: #ffffff;
+  border: 1px solid #ddd;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.login-logo {
+  height: 70px;
+  width: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto 1rem;
+  border: 2px solid #fff;
+}
+
+.welcome-page {
+  min-height: 100vh;
+  color: #fff;
+  background-attachment: fixed;
+  background-position: center;
+  background-size: cover;
+}
+
+.custom-navbar {
+  padding: 1rem 0;
+}
+
+.welcome-nav-container,
+.welcome-nav-actions,
+.welcome-brand,
+.welcome-actions {
+  display: flex;
+  align-items: center;
+}
+
+.welcome-nav-container {
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.welcome-brand {
+  min-width: 0;
+  gap: 0.75rem;
+  color: #fff !important;
+  font-weight: 700;
+  white-space: normal;
+}
+
+.welcome-brand img {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.welcome-brand span {
+  line-height: 1.2;
+}
+
+.welcome-nav-actions {
+  flex-direction: row;
+  gap: 0.6rem;
+}
+
+.welcome-nav-button {
+  min-width: 92px;
+}
+
+.welcome-hero {
+  padding: 6rem 0 3rem;
+}
+
+.welcome-hero-grid {
+  align-items: center;
+  justify-content: center;
+  row-gap: 2rem;
+}
+
+.welcome-copy {
+  max-width: 720px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.welcome-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  text-align: center;
+}
+
+.welcome-header > div {
+  width: 100%;
+  max-width: 720px;
+}
+
+.location-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem;
+  text-align: center;
+}
+
+.location-map {
+  display: block;
+  width: min(100%, 920px);
+  margin: 0 auto;
+  height: clamp(210px, 34vw, 360px);
+  object-fit: cover;
+  border-top: 1px solid #333;
+}
+
+.welcome-eyebrow {
+  margin: 0 0 0.75rem;
+  color: #bde9dc;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.welcome-copy h3 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(2rem, 4vw, 4rem);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  line-height: 1.1;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.welcome-lead {
+  max-width: 650px;
+  margin: 1.25rem 0 0;
+  color: #ddd;
+  font-size: 1.2rem;
+  line-height: 1.7;
+  font-weight: 400;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.welcome-actions {
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.welcome-actions .btn {
+  min-width: 120px;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.welcome-nav-button {
+  min-width: 90px;
+  padding: 0.55rem 1rem;
+  font-size: 0.9rem;
+}
+
+.location-section,
+.welcome-logo-panel,
+.feature-text-box {
+  border-radius: 8px;
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.22);
+}
+
+.location-section {
+  margin-top: 2rem;
+  overflow: hidden;
+}
+
+.location-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.location-label,
+.location-address {
+  margin: 0;
+}
+
+.location-label {
+  color: #f0eeee;
+  font-weight: 800;
+}
+
+.location-address {
+  margin-top: 0.2rem;
+  color: #faf8f8;
+  font-size: 0.95rem;
+}
+
+.location-map {
+  display: block;
+  width: 100%;
+  height: clamp(210px, 34vw, 360px);
+  object-fit: cover;
+  border-top: 1px solid #333;
+}
+
+.welcome-logo-panel {
+  min-height: 520px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.75rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.welcome-logo-panel img {
+  width: min(320px, 80vw);
+  aspect-ratio: 1;
+  margin: 0 auto;
+  border: 10px solid #fff;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.28);
+}
+
+.welcome-logo-panel h2,
+.welcome-footer h2,
+.welcome-section-heading h2 {
+  margin: 0;
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.welcome-logo-panel h2 {
+  font-size: 1.55rem;
+}
+
+.welcome-logo-panel p {
+  margin: 0.75rem 0 0;
+  color: #ccc;
+  line-height: 1.6;
+}
+
+.welcome-section {
+  padding: 3.5rem 0;
+  background: #0f1a1f;
+}
+
+.welcome-section-heading {
+  max-width: 720px;
+  margin-bottom: 1.75rem;
+}
+
+.welcome-section-heading h2 {
+  font-size: clamp(1.75rem, 3vw, 2.8rem);
+  line-height: 1.15;
+}
+
+.welcome-feature-grid {
+  row-gap: 1rem;
+}
+
+.feature-text-box {
+  height: 100%;
+  min-height: 230px;
+  padding: 1.5rem;
+}
+
+.feature-text-box span {
+  display: inline-flex;
+  width: 42px;
+  height: 42px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  border-radius: 50%;
+  background: #f0f0f0;
+  color: #0f4f4a;
+  font-weight: 800;
+}
+
+.feature-text-box h3 {
+  margin: 0 0 0.65rem;
+  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.feature-text-box p {
+  margin: 0;
+  color: #ccc;
+  line-height: 1.65;
+}
+
+.welcome-footer {
+  padding: 2.5rem 0;
+  background: #0a1a28;
+  border-top: 1px solid #333;
+}
+
+.welcome-footer-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.welcome-footer h2 {
+  font-size: clamp(1.5rem, 2.4vw, 2.15rem);
+}
+
+.welcome-footer .welcome-actions {
+  margin-top: 0;
+}
+
+@media (max-width: 991.98px) {
+  .welcome-hero {
+    padding-top: 3rem;
+  }
+
+  .welcome-logo-panel {
+    min-height: auto;
+  }
+
+  .welcome-header {
+    gap: 1.25rem;
+  }
+
+  .welcome-logo {
+    width: clamp(110px, 18vw, 220px);
+    height: clamp(110px, 18vw, 220px);
+  }
+}
+
+@media (max-width: 767.98px) {
+  .custom-navbar {
+    padding: 0.75rem 0;
+  }
+
+  .welcome-nav-container,
+  .welcome-footer-content {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .welcome-nav-actions {
+    width: 100%;
+  }
+
+  .welcome-nav-actions a,
+  .welcome-nav-actions .btn,
+  .welcome-actions a,
+  .welcome-actions .btn {
+    width: 100%;
+  }
+
+  .welcome-hero {
+    padding: 2.25rem 0;
+  }
+
+  .welcome-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+
+  .welcome-logo {
+    width: 100px;
+    height: 100px;
+  }
+
+  .welcome-copy h1 {
+    font-size: 2.2rem;
+  }
+
+  .welcome-lead {
+    font-size: 1rem;
+  }
+
+  .location-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .location-map {
+    height: 240px;
+  }
+
+  .welcome-section {
+    padding: 2.5rem 0;
+  }
+
+  .feature-text-box {
+    min-height: auto;
+  }
+}

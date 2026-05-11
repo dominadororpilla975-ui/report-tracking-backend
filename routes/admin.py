@@ -1110,17 +1110,17 @@ def get_dashboard_stats():
         
         # Monthly submission trend
         cursor.execute("""
-            SELECT DATE_FORMAT(created_at, '%%Y-%%m') as month, COUNT(*) as count
+            SELECT TO_CHAR(created_at, 'YYYY-MM') as month, COUNT(*) as count
             FROM reports
-            WHERE created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
-            GROUP BY DATE_FORMAT(created_at, '%%Y-%%m')
+            WHERE created_at >= NOW() - INTERVAL '6 months'
+            GROUP BY TO_CHAR(created_at, 'YYYY-MM')
             ORDER BY month
         """)
         monthly_trend = cursor.fetchall()
         
-# Average resolution time (use COALESCE for NULL updated_at)
+        # Average resolution time (use COALESCE for NULL updated_at)
         cursor.execute("""
-            SELECT AVG(DATEDIFF(COALESCE(updated_at, created_at), created_at)) as avg_days
+            SELECT AVG(EXTRACT(EPOCH FROM (COALESCE(updated_at, created_at) - created_at))) as avg_seconds
             FROM reports
             WHERE status IN ('Approved', 'Completed') AND created_at IS NOT NULL
         """)
@@ -1138,13 +1138,13 @@ def get_dashboard_stats():
         
         # Top departments by resolution speed (NULL safe)
         cursor.execute("""
-            SELECT d.name, AVG(DATEDIFF(COALESCE(r.updated_at, r.created_at), r.created_at)) as avg_days
+            SELECT d.name, AVG(EXTRACT(EPOCH FROM (COALESCE(r.updated_at, r.created_at) - r.created_at))) as avg_seconds
             FROM reports r
             JOIN departments d ON r.department_id = d.id
             WHERE r.status IN ('Approved', 'Completed') AND r.created_at IS NOT NULL
             GROUP BY d.id, d.name
-            HAVING AVG(DATEDIFF(COALESCE(r.updated_at, r.created_at), r.created_at)) IS NOT NULL
-            ORDER BY avg_days ASC
+            HAVING AVG(EXTRACT(EPOCH FROM (COALESCE(r.updated_at, r.created_at) - r.created_at))) IS NOT NULL
+            ORDER BY avg_seconds ASC
             LIMIT 5
         """)
         top_performers = cursor.fetchall()
@@ -1156,9 +1156,14 @@ def get_dashboard_stats():
             "status_counts": status_counts,
             "department_workload": dept_workload,
             "monthly_trend": monthly_trend,
-            "avg_resolution_days": avg_resolution['avg_days'] or 0,
+            "avg_resolution_days": (avg_resolution['avg_seconds'] / 86400.0) if avg_resolution and avg_resolution['avg_seconds'] is not None else 0,
             "budget_stats": budget_stats[0] if budget_stats else {},
-            "top_performers": top_performers
+            "top_performers": [
+                {
+                    "name": perf["name"],
+                    "avg_days": perf["avg_seconds"] / 86400.0
+                } for perf in top_performers
+            ]
         }), 200
     except Exception as e:
         print(f"[STATS ERROR] {e}")
